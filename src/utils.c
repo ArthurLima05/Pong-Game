@@ -9,5 +9,5 @@ void clearScreen()
 
 void delay(int milliseconds)
 {
-    usleep(milliseconds * 100); // Pausa a execução por um número de milissegundos
+    usleep(milliseconds * 10); // Pausa a execução por um número de milissegundos
 }
