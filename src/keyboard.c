@@ -1,104 +1,64 @@
-#include "../include/keyboard.h"
+#include "keyboard.h"
 #include <termios.h>
 #include <unistd.h>
-#include <ncurses.h>
-#include "../include/game.h"
-#include <stdlib.h>
+#include <stdio.h>
 
-static struct termios initialSettings, newSettings;
-static int peekCharacter = -1;
+#define NUM_KEYS 256 // Total de teclas que podemos monitorar
 
+static struct termios old_tio, new_tio; // Configurações do terminal
+static int keyState[NUM_KEYS] = {0};    // Array para armazenar o estado das teclas
+
+// Inicializa o teclado
 void keyboardInit()
 {
-    tcgetattr(0, &initialSettings);
-    newSettings = initialSettings;
-    newSettings.c_lflag &= ~ICANON;
-    newSettings.c_lflag &= ~ECHO;
-    newSettings.c_lflag &= ~ISIG;
-    newSettings.c_cc[VMIN] = 1;
-    newSettings.c_cc[VTIME] = 0;
-    tcsetattr(0, TCSANOW, &newSettings);
+    tcgetattr(STDIN_FILENO, &old_tio); // Salva as configurações atuais
+    new_tio = old_tio;
+    new_tio.c_lflag &= ~(ICANON | ECHO);        // Desativa o buffering e o echo
+    new_tio.c_cc[VMIN] = 1;                     // Lê 1 byte por vez
+    new_tio.c_cc[VTIME] = 0;                    // Sem timeout
+    tcsetattr(STDIN_FILENO, TCSANOW, &new_tio); // Aplica as novas configurações
 }
 
+// Restaura as configurações do terminal
 void keyboardDestroy()
 {
-    tcsetattr(0, TCSANOW, &initialSettings);
+    tcsetattr(STDIN_FILENO, TCSANOW, &old_tio); // Restaura as configurações anteriores
 }
 
+// Função para verificar se alguma tecla foi pressionada
 int keyhit()
 {
-    unsigned char ch;
-    int nread;
+    struct termios oldt, newt;
+    int ch;
 
-    if (peekCharacter != -1)
-        return 1;
+    tcgetattr(STDIN_FILENO, &oldt); // Salva as configurações do terminal
+    newt = oldt;
+    newt.c_lflag &= ~(ICANON | ECHO);        // Desabilita o buffering e o echo
+    newt.c_cc[VMIN] = 1;                     // Lê 1 byte por vez
+    newt.c_cc[VTIME] = 0;                    // Sem timeout
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt); // Aplica as novas configurações
 
-    newSettings.c_cc[VMIN] = 0;
-    tcsetattr(0, TCSANOW, &newSettings);
-    nread = read(0, &ch, 1);
-    newSettings.c_cc[VMIN] = 1;
-    tcsetattr(0, TCSANOW, &newSettings);
+    ch = getchar();                          // Lê o caractere da entrada
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt); // Restaura as configurações anteriores
 
-    if (nread == 1)
+    if (ch != EOF) // Se uma tecla foi pressionada
     {
-        peekCharacter = ch;
+        keyState[ch] = 1; // Marca a tecla como pressionada
         return 1;
     }
-
     return 0;
 }
 
+// Lê a tecla pressionada
 int readch()
 {
-    char ch;
-
-    if (peekCharacter != -1)
-    {
-        ch = peekCharacter;
-        peekCharacter = -1;
-        return ch;
-    }
-
-    read(0, &ch, 1);
+    char ch = getchar(); // Lê a tecla pressionada
+    keyState[ch] = 0;    // Marca a tecla como não pressionada
     return ch;
 }
 
-void processInput(Paddle *leftPaddle, Paddle *rightPaddle)
+// Função para verificar se uma tecla específica foi pressionada
+int isKeyPressed(int key)
 {
-    int ch = getch(); // Captura a entrada do teclado
-
-    // Controla o paddle esquerdo com 'w' e 's'
-    switch (ch)
-    {
-    case 'w':
-        if (leftPaddle->y > 0)
-        {
-            leftPaddle->y--; // Move o paddle para cima
-        }
-        break;
-    case 's':
-        if (leftPaddle->y + leftPaddle->height < LINES)
-        {
-            leftPaddle->y++; // Move o paddle para baixo
-        }
-        break;
-
-    // Controla o paddle direito com as setas
-    case KEY_UP:
-        if (rightPaddle->y > 0)
-        {
-            rightPaddle->y--; // Move o paddle direito para cima
-        }
-        break;
-    case KEY_DOWN:
-        if (rightPaddle->y + rightPaddle->height < LINES)
-        {
-            rightPaddle->y++; // Move o paddle direito para baixo
-        }
-        break;
-
-    case 'q':
-        exit(0); // Sai do jogo se 'q' for pressionado
-        break;
-    }
+    return keyState[key]; // Retorna 1 se a tecla foi pressionada, 0 caso contrário
 }

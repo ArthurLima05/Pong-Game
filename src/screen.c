@@ -1,56 +1,102 @@
-#include "../include/screen.h"
-#include <stdio.h>
-#include <unistd.h>
-#include <ncurses.h>
+#include "screen.h"
 
-#define ESC_SEQ "\033"
-#define CURSOR_HIDE "[?25l"
-#define CURSOR_SHOW "[?25h"
-#define CLEAR_TERMINAL "[2J"
-#define CURSOR_HOME "[H"
-
-// Mover o cursor para a posição inicial
-static inline void moveToHome()
+void screenDrawBorders()
 {
-    printf("%s%s", ESC_SEQ, CURSOR_HOME);
+    char hbc = BOX_HLINE;
+    char vbc = BOX_VLINE;
+
+    screenClear();
+    screenBoxEnable();
+
+    screenGotoxy(MINX, MINY);
+    printf("%c", BOX_UPLEFT);
+
+    for (int i = MINX + 1; i < MAXX; i++)
+    {
+        screenGotoxy(i, MINY);
+        printf("%c", hbc);
+    }
+    screenGotoxy(MAXX, MINY);
+    printf("%c", BOX_UPRIGHT);
+
+    for (int i = MINY + 1; i < MAXY; i++)
+    {
+        screenGotoxy(MINX, i);
+        printf("%c", vbc);
+        screenGotoxy(MAXX, i);
+        printf("%c", vbc);
+    }
+
+    screenGotoxy(MINX, MAXY);
+    printf("%c", BOX_DWNLEFT);
+    for (int i = MINX + 1; i < MAXX; i++)
+    {
+        screenGotoxy(i, MAXY);
+        printf("%c", hbc);
+    }
+    screenGotoxy(MAXX, MAXY);
+    printf("%c", BOX_DWNRIGHT);
+
+    screenBoxDisable();
 }
 
-// Limpar a tela e mover o cursor para o início
-static inline void clearTerminalScreen() // Renomeado para evitar conflito
+void screenHomeCursor()
 {
-    moveToHome();
-    printf("%s%s", ESC_SEQ, CLEAR_TERMINAL);
+    printf("\033[H");
 }
 
-// Mostrar o cursor no terminal
-static inline void showCursor()
+void screenHideCursor()
 {
-    printf("%s%s", ESC_SEQ, CURSOR_SHOW);
+    printf("\033[?25l");
 }
 
-// Ocultar o cursor no terminal
-static inline void hideCursor()
+void screenShowCursor()
 {
-    printf("%s%s", ESC_SEQ, CURSOR_HIDE);
+    printf("\033[?25h");
 }
 
-void initScreen()
+void screenSetNormal()
 {
-    hideCursor();          // Oculta o cursor no início
-    clearTerminalScreen(); // Limpa a tela no início
+    printf("\033[0m");
 }
 
-void endScreen()
+void screenInit(int drawBorders)
 {
-    showCursor(); // Mostra o cursor antes de sair
+    screenClear();
+    if (drawBorders)
+        screenDrawBorders();
+    screenHomeCursor();
+    screenHideCursor();
 }
 
-void updateScreen()
+void screenDestroy()
 {
+    printf("%s[0;39;49m", ESC); // Reset colors
+    screenSetNormal();
+    screenClear();
+    screenHomeCursor();
+    screenShowCursor();
 }
 
-void setColors(ScreenColor fg, ScreenColor bg)
+void screenGotoxy(int x, int y)
 {
-    init_pair(1, fg, bg);  // Inicializa o par de cores
-    attron(COLOR_PAIR(1)); // Usa o par de cores
+    x = (x < 0 ? 0 : x >= MAXX ? MAXX - 1
+                               : x);
+    y = (y < 0 ? 0 : y > MAXY ? MAXY
+                              : y);
+
+    printf("%s[f%s[%dB%s[%dC", ESC, ESC, y, ESC, x);
+}
+
+void screenSetColor(screenColor fg, screenColor bg)
+{
+    char atr[] = "[0;";
+
+    if (fg > LIGHTGRAY)
+    {
+        atr[1] = '1';
+        fg -= 8;
+    }
+
+    printf("%s%s%d;%dm", ESC, atr, fg + 30, bg + 40);
 }
