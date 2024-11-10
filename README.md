@@ -30,7 +30,7 @@ A bola se move automaticamente na tela, quicando nas bordas superiores e inferio
 ### Compilar o Código
 
 Para compilar o jogo, você precisará da biblioteca ncurses. Certifique-se de tê-la instalada e execute o seguinte comando:
-`gcc src/*.c -o pong -lncurses`
+`gcc src/*.c -o pong -linclude`
 
 ### Executar o Jogo
 
