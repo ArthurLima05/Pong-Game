@@ -3,7 +3,7 @@
 **📜 Descrição**:
 Pong é um clássico jogo de arcade que simula uma partida de tênis de mesa. Neste jogo, dois jogadores controlam "paddles" (barras verticais) para rebater a bola de um lado para o outro. O objetivo é fazer com que o oponente não consiga devolver a bola, marcando pontos sempre que a bola ultrapassa a barra do adversário.
 
-O jogo termina automaticamente quando um dos jogadores alcança 7 pontos, declarando-o vencedor da partida.
+O jogo termina automaticamente quando um dos jogadores alcança 7 pontos, declarando-o vencedor da partida. Quando feito 4 pontos, o jogador tem seu paddle reduzido pela metade.
 
 ## 🎮 Funcionamento do Jogo
 
@@ -23,7 +23,7 @@ A bola se move automaticamente na tela, quicando nas bordas superiores e inferio
 
 • Pontos: O jogador marca pontos quando a bola ultrapassa o paddle do oponente.  
 • Fim de Jogo: O jogo termina quando um dos jogadores alcança 7 pontos.  
-• Sair do Jogo: Pressione a tecla Q a qualquer momento para sair do jogo.
+• Sair do Jogo: Pressione a tecla R a qualquer momento para sair do jogo.
 
 ## 🚀 Como Jogar
 
