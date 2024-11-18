@@ -14,8 +14,8 @@ W: Move para cima
 S: Move para baixo
 
 Paddle direito:  
-Seta para cima: Move para cima  
-Seta para baixo: Move para baixo
+I: Move para cima  
+K: Move para baixo
 
 A bola se move automaticamente na tela, quicando nas bordas superiores e inferiores. Sempre que a bola ultrapassa um paddle, o jogador adversário ganha um ponto.
 
@@ -30,12 +30,14 @@ A bola se move automaticamente na tela, quicando nas bordas superiores e inferio
 ### Compilar o Código
 
 Para compilar o jogo, você precisará da biblioteca ncurses. Certifique-se de tê-la instalada e execute o seguinte comando:
-`gcc src/*.c -o pong -lncurses`
+`gcc src/*.c -o pong -linclude`
 
 ### Executar o Jogo
 
 Após a compilação, inicie o jogo com:
 `./pong`
+
+Para uma melhor experiência, abra o terminal em tela cheia, e aperte qualquer tecla para o início do jogo
 
 ## 👨‍🎓 Estudantes:
 
