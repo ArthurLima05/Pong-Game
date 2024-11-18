@@ -11,7 +11,7 @@ void timerInit(int valueMilliSec)
 {
     gettimeofday(&startTime, NULL); // Captura o tempo inicial
     intervalTime = valueMilliSec;   // Define o intervalo de tempo
-    lastUpdateTime = 0;
+    lastUpdateTime = 0;             // Inicializa o último tempo de atualização
 }
 
 // Atualiza o temporizador, verificando o tempo decorrido
@@ -23,6 +23,7 @@ void timerUpdate()
     unsigned long elapsedTime = (currentTime.tv_sec - startTime.tv_sec) * 1000 +
                                 (currentTime.tv_usec - startTime.tv_usec) / 1000;
 
+    // Se o tempo decorrido for maior ou igual ao intervalo, atualize o temporizador
     if (elapsedTime - lastUpdateTime >= intervalTime)
     {
         lastUpdateTime = elapsedTime; // Atualiza o último tempo de verificação
@@ -40,10 +41,11 @@ int timerTimeOver()
 
     if (elapsedTime - lastUpdateTime >= intervalTime)
     {
-        return 1;
+        lastUpdateTime = elapsedTime; // Atualiza o último tempo de verificação
+        return 1;                     // Retorna 1 se o tempo definido já passou
     }
 
-    return 0;
+    return 0; // Retorna 0 se o tempo não passou
 }
 
 // Exibe o tempo atual (para depuração)
@@ -58,7 +60,6 @@ void timerPrint()
     printf("Time elapsed: %lu ms\n", elapsedTime);
 }
 
-// Finaliza o temporizador (opcional)
 void timerDestroy()
 {
     startTime.tv_sec = 0;

@@ -26,22 +26,32 @@ void keyboardDestroy()
 }
 
 // Função para verificar se alguma tecla foi pressionada
+#include <termios.h>
+#include <unistd.h>
+#include <fcntl.h>
+
 int keyhit()
 {
     struct termios oldt, newt;
     int ch;
+    int oldf;
 
-    tcgetattr(STDIN_FILENO, &oldt); // Salva as configurações do terminal
+    tcgetattr(STDIN_FILENO, &oldt);
     newt = oldt;
-    newt.c_lflag &= ~(ICANON | ECHO);        // Desabilita o buffering e o echo
+
+    newt.c_lflag &= ~(ICANON | ECHO);        // Desabilita buffering e echo
     newt.c_cc[VMIN] = 1;                     // Lê 1 byte por vez
     newt.c_cc[VTIME] = 0;                    // Sem timeout
     tcsetattr(STDIN_FILENO, TCSANOW, &newt); // Aplica as novas configurações
 
-    ch = getchar();                          // Lê o caractere da entrada
-    tcsetattr(STDIN_FILENO, TCSANOW, &oldt); // Restaura as configurações anteriores
+    oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+    fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
 
-    if (ch != EOF) // Se uma tecla foi pressionada
+    ch = getchar(); // Lê a tecla pressionada
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt); // Restaura configurações do terminal
+
+    if (ch != EOF)
     {
         keyState[ch] = 1; // Marca a tecla como pressionada
         return 1;
