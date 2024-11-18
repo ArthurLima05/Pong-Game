@@ -22,14 +22,16 @@ void drawGame()
     screenDrawBorders();
 
     screenSetColor(BLUE, BLACK);
-    for (int i = 0; i < PADDLE_HEIGHT; i++)
+    int leftPaddleHeight = (leftScore >= 4) ? 2 : PADDLE_HEIGHT; // Reduz o tamanho do paddle para 2 se a pontuação for >= 4
+    for (int i = 0; i < leftPaddleHeight; i++)
     {
         screenGotoxy(2, leftPaddleY + i);
         printf("|");
     }
 
     screenSetColor(RED, BLACK);
-    for (int i = 0; i < PADDLE_HEIGHT; i++)
+    int rightPaddleHeight = (rightScore >= 4) ? 2 : PADDLE_HEIGHT; // Reduz o tamanho do paddle para 2 se a pontuação for >= 4
+    for (int i = 0; i < rightPaddleHeight; i++)
     {
         screenGotoxy(MAXX - 2, rightPaddleY + i);
         printf("|");
@@ -73,14 +75,17 @@ void updateBall()
     if (gameEnded)
         return;
 
+    // Movimento da bola
     ballX += ballDirectionX;
     ballY += ballDirectionY;
 
+    // Verifica colisões com as bordas superior e inferior
     if (ballY <= MINY + 1 || ballY >= MAXY - 1)
     {
         ballDirectionY *= -1;
     }
 
+    // Colisões com os paddles
     if (ballX == 3 && ballY >= leftPaddleY && ballY < leftPaddleY + PADDLE_HEIGHT)
     {
         ballDirectionX *= -1;
@@ -91,6 +96,7 @@ void updateBall()
         ballDirectionX *= -1;
     }
 
+    // Verifica se a bola passou das bordas
     if (ballX <= MINX)
     {
         rightScore++;
@@ -132,7 +138,7 @@ void updatePaddles()
         {
             leftPaddleY--;
         }
-        if ((key == 's' || key == 'S') && leftPaddleY < MAXY - PADDLE_HEIGHT)
+        if ((key == 's' || key == 'S') && leftPaddleY < MAXY - (leftScore >= 4 ? 2 : PADDLE_HEIGHT)) // Considera a altura do paddle ao mover
         {
             leftPaddleY++;
         }
@@ -141,7 +147,7 @@ void updatePaddles()
         {
             rightPaddleY--;
         }
-        if ((key == 'k' || key == 'K') && rightPaddleY < MAXY - PADDLE_HEIGHT)
+        if ((key == 'k' || key == 'K') && rightPaddleY < MAXY - (rightScore >= 4 ? 2 : PADDLE_HEIGHT)) // Considera a altura do paddle ao mover
         {
             rightPaddleY++;
         }
@@ -152,17 +158,21 @@ int main()
 {
     screenInit(1);
     keyboardInit();
-    timerInit(50);
+    timerInit(50); // O intervalo de 50ms vai atualizar o jogo
 
     while (1)
     {
-        if (timerTimeOver() == 1)
+        // Verifica se o tempo passou
+        if (timerTimeOver())
         {
-            timerUpdate();
-            updatePaddles();
+            timerUpdate(); // Atualiza o temporizador para o próximo ciclo
+
+            // Atualiza o movimento da bola e os paddles, desenha a tela
             updateBall();
-            drawGame();
+            updatePaddles();
+            drawGame(); // Desenha o jogo na tela
         }
+        usleep(50000); // Espera por 50ms antes de continuar o loop, garantindo atualização contínua
     }
 
     keyboardDestroy();
