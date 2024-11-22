@@ -10,11 +10,10 @@
 #define BALL_SIZE 1
 #define WINNING_SCORE 7
 
-int leftPaddleY = 10, rightPaddleY = 10;
-int ballX = 40, ballY = 12;
-int ballDirectionX = 1, ballDirectionY = 1;
-int leftScore = 0, rightScore = 0;
-int gameEnded = 0;
+int *leftPaddleY, *rightPaddleY;
+int *ballX, *ballY, *ballDirectionX, *ballDirectionY;
+int *leftScore, *rightScore;
+int *gameEnded;
 
 void drawGame()
 {
@@ -22,36 +21,36 @@ void drawGame()
     screenDrawBorders();
 
     screenSetColor(BLUE, BLACK);
-    int leftPaddleHeight = (leftScore >= 4) ? 2 : PADDLE_HEIGHT; // Reduz o tamanho do paddle para 2 se a pontuação for >= 4
+    int leftPaddleHeight = (*leftScore >= 4) ? 2 : PADDLE_HEIGHT; // Reduz o tamanho do paddle para 2 se a pontuação for >= 4
     for (int i = 0; i < leftPaddleHeight; i++)
     {
-        screenGotoxy(2, leftPaddleY + i);
+        screenGotoxy(2, *leftPaddleY + i);
         printf("|");
     }
 
     screenSetColor(RED, BLACK);
-    int rightPaddleHeight = (rightScore >= 4) ? 2 : PADDLE_HEIGHT; // Reduz o tamanho do paddle para 2 se a pontuação for >= 4
+    int rightPaddleHeight = (*rightScore >= 4) ? 2 : PADDLE_HEIGHT; // Reduz o tamanho do paddle para 2 se a pontuação for >= 4
     for (int i = 0; i < rightPaddleHeight; i++)
     {
-        screenGotoxy(MAXX - 2, rightPaddleY + i);
+        screenGotoxy(MAXX - 2, *rightPaddleY + i);
         printf("|");
     }
 
     screenSetColor(WHITE, BLACK);
-    screenGotoxy(ballX, ballY);
+    screenGotoxy(*ballX, *ballY);
     printf("O");
 
     screenGotoxy(12, MINY);
-    printf("Score Left: %d", leftScore);
+    printf("Score Left: %d", *leftScore);
     screenGotoxy((3 * MAXX / 4) - 5, MINY);
-    printf("Score Right: %d", rightScore);
+    printf("Score Right: %d", *rightScore);
 
     // Exibir mensagem de vitória conforme o jogador
-    if (gameEnded)
+    if (*gameEnded)
     {
-        int messagePosX = leftScore == WINNING_SCORE ? MAXX / 4 : 3 * MAXX / 4;
+        int messagePosX = *leftScore == WINNING_SCORE ? MAXX / 4 : 3 * MAXX / 4;
         screenGotoxy(messagePosX - 5, MAXY / 2); // Ajusta a posição de acordo com o vencedor
-        printf("Player %s Wins! Press 'r' to restart", leftScore == WINNING_SCORE ? "Left" : "Right");
+        printf("Player %s Wins! Press 'r' to restart", *leftScore == WINNING_SCORE ? "Left" : "Right");
     }
 
     screenUpdate();
@@ -59,66 +58,66 @@ void drawGame()
 
 void resetGame()
 {
-    leftPaddleY = 10;
-    rightPaddleY = 10;
-    ballX = 40;
-    ballY = 12;
-    ballDirectionX = 1;
-    ballDirectionY = 1;
-    leftScore = 0;
-    rightScore = 0;
-    gameEnded = 0;
+    *leftPaddleY = 10;
+    *rightPaddleY = 10;
+    *ballX = 40;
+    *ballY = 12;
+    *ballDirectionX = 1;
+    *ballDirectionY = 1;
+    *leftScore = 0;
+    *rightScore = 0;
+    *gameEnded = 0;
 }
 
 void updateBall()
 {
-    if (gameEnded)
+    if (*gameEnded)
         return;
 
     // Movimento da bola
-    ballX += ballDirectionX;
-    ballY += ballDirectionY;
+    *ballX += *ballDirectionX;
+    *ballY += *ballDirectionY;
 
     // Verifica colisões com as bordas superior e inferior
-    if (ballY <= MINY + 1 || ballY >= MAXY - 1)
+    if (*ballY <= MINY + 1 || *ballY >= MAXY - 1)
     {
-        ballDirectionY *= -1;
+        *ballDirectionY *= -1;
     }
 
     // Colisões com os paddles
-    if (ballX == 3 && ballY >= leftPaddleY && ballY < leftPaddleY + PADDLE_HEIGHT)
+    if (*ballX == 3 && *ballY >= *leftPaddleY && *ballY < *leftPaddleY + PADDLE_HEIGHT)
     {
-        ballDirectionX *= -1;
+        *ballDirectionX *= -1;
     }
 
-    if (ballX == MAXX - 3 && ballY >= rightPaddleY && ballY < rightPaddleY + PADDLE_HEIGHT)
+    if (*ballX == MAXX - 3 && *ballY >= *rightPaddleY && *ballY < *rightPaddleY + PADDLE_HEIGHT)
     {
-        ballDirectionX *= -1;
+        *ballDirectionX *= -1;
     }
 
     // Verifica se a bola passou das bordas
-    if (ballX <= MINX)
+    if (*ballX <= MINX)
     {
-        rightScore++;
-        if (rightScore >= WINNING_SCORE)
+        (*rightScore)++;
+        if (*rightScore >= WINNING_SCORE)
         {
-            gameEnded = 1;
+            *gameEnded = 1;
         }
-        ballX = 40;
-        ballY = 12;
-        ballDirectionX = 1;
+        *ballX = 40;
+        *ballY = 12;
+        *ballDirectionX = 1;
     }
 
-    if (ballX >= MAXX)
+    if (*ballX >= MAXX)
     {
-        leftScore++;
-        if (leftScore >= WINNING_SCORE)
+        (*leftScore)++;
+        if (*leftScore >= WINNING_SCORE)
         {
-            gameEnded = 1;
+            *gameEnded = 1;
         }
-        ballX = 40;
-        ballY = 12;
-        ballDirectionX = -1;
+        *ballX = 40;
+        *ballY = 12;
+        *ballDirectionX = -1;
     }
 }
 
@@ -128,34 +127,47 @@ void updatePaddles()
     {
         char key = readch();
 
-        if (gameEnded && key == 'r')
+        if (*gameEnded && key == 'r')
         {
             resetGame();
             return;
         }
 
-        if ((key == 'w' || key == 'W') && leftPaddleY > MINY + 1)
+        if ((key == 'w' || key == 'W') && *leftPaddleY > MINY + 1)
         {
-            leftPaddleY--;
+            (*leftPaddleY)--;
         }
-        if ((key == 's' || key == 'S') && leftPaddleY < MAXY - (leftScore >= 4 ? 2 : PADDLE_HEIGHT)) // Considera a altura do paddle ao mover
+        if ((key == 's' || key == 'S') && *leftPaddleY < MAXY - (*leftScore >= 4 ? 2 : PADDLE_HEIGHT)) // Considera a altura do paddle ao mover
         {
-            leftPaddleY++;
+            (*leftPaddleY)++;
         }
 
-        if ((key == 'i' || key == 'I') && rightPaddleY > MINY + 1)
+        if ((key == 'i' || key == 'I') && *rightPaddleY > MINY + 1)
         {
-            rightPaddleY--;
+            (*rightPaddleY)--;
         }
-        if ((key == 'k' || key == 'K') && rightPaddleY < MAXY - (rightScore >= 4 ? 2 : PADDLE_HEIGHT)) // Considera a altura do paddle ao mover
+        if ((key == 'k' || key == 'K') && *rightPaddleY < MAXY - (*rightScore >= 4 ? 2 : PADDLE_HEIGHT)) // Considera a altura do paddle ao mover
         {
-            rightPaddleY++;
+            (*rightPaddleY)++;
         }
     }
 }
 
 int main()
 {
+    leftPaddleY = malloc(sizeof(int));
+    rightPaddleY = malloc(sizeof(int));
+    ballX = malloc(sizeof(int));
+    ballY = malloc(sizeof(int));
+    ballDirectionX = malloc(sizeof(int));
+    ballDirectionY = malloc(sizeof(int));
+    leftScore = malloc(sizeof(int));
+    rightScore = malloc(sizeof(int));
+    gameEnded = malloc(sizeof(int));
+
+    // Inicializar variáveis do jogo
+    resetGame();
+
     screenInit(1);
     keyboardInit();
     timerInit(50); // O intervalo de 50ms vai atualizar o jogo
@@ -174,6 +186,17 @@ int main()
         }
         usleep(50000); // Espera por 50ms antes de continuar o loop, garantindo atualização contínua
     }
+
+    // Liberar memória alocada
+    free(leftPaddleY);
+    free(rightPaddleY);
+    free(ballX);
+    free(ballY);
+    free(ballDirectionX);
+    free(ballDirectionY);
+    free(leftScore);
+    free(rightScore);
+    free(gameEnded);
 
     keyboardDestroy();
     screenDestroy();

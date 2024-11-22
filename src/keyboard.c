@@ -2,6 +2,7 @@
 #include <termios.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <fcntl.h>
 
 #define NUM_KEYS 256 // Total de teclas que podemos monitorar
 
@@ -26,9 +27,6 @@ void keyboardDestroy()
 }
 
 // Função para verificar se alguma tecla foi pressionada
-#include <termios.h>
-#include <unistd.h>
-#include <fcntl.h>
 
 int keyhit()
 {
