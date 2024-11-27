@@ -17,9 +17,6 @@ int *gameEnded;
 
 void drawGame()
 {
-    screenClear();
-    screenDrawBorders();
-
     screenSetColor(BLUE, BLACK);
     int leftPaddleHeight = (*leftScore >= 4) ? 2 : PADDLE_HEIGHT;
     for (int i = 0; i < leftPaddleHeight; i++)
@@ -51,8 +48,6 @@ void drawGame()
         screenGotoxy(messagePosX - 5, MAXY / 2);
         printf("Player %s Wins! Press 'r' to restart", *leftScore == WINNING_SCORE ? "Left" : "Right");
     }
-
-    screenUpdate();
 }
 
 void resetGame()
@@ -68,34 +63,38 @@ void resetGame()
     *gameEnded = 0;
 }
 
-void updateBall()
-{
+void updateBall() {
     if (*gameEnded)
         return;
 
     *ballX += *ballDirectionX;
     *ballY += *ballDirectionY;
 
-    if (*ballY <= MINY + 1 || *ballY >= MAXY - 1)
-    {
+    if (*ballY <= MINY + 1 || *ballY >= MAXY - 1) {
         *ballDirectionY *= -1;
     }
 
-    if (*ballX == 3 && *ballY >= *leftPaddleY && *ballY < *leftPaddleY + PADDLE_HEIGHT)
-    {
+    if (*ballX == 3 && *ballY >= *leftPaddleY && *ballY < *leftPaddleY + PADDLE_HEIGHT) {
         *ballDirectionX *= -1;
+
+        int paddleMiddle = *leftPaddleY + PADDLE_HEIGHT / 2;
+        int ballRelativeY = *ballY - paddleMiddle;
+
+        *ballDirectionY = ballRelativeY / 2;
     }
 
-    if (*ballX == MAXX - 3 && *ballY >= *rightPaddleY && *ballY < *rightPaddleY + PADDLE_HEIGHT)
-    {
+    if (*ballX == MAXX - 3 && *ballY >= *rightPaddleY && *ballY < *rightPaddleY + PADDLE_HEIGHT) {
         *ballDirectionX *= -1;
+
+        int paddleMiddle = *rightPaddleY + PADDLE_HEIGHT / 2;
+        int ballRelativeY = *ballY - paddleMiddle;
+
+        *ballDirectionY = ballRelativeY / 2;
     }
 
-    if (*ballX <= MINX)
-    {
+    if (*ballX <= MINX) {
         (*rightScore)++;
-        if (*rightScore >= WINNING_SCORE)
-        {
+        if (*rightScore >= WINNING_SCORE) {
             *gameEnded = 1;
         }
         *ballX = 40;
@@ -103,11 +102,9 @@ void updateBall()
         *ballDirectionX = 1;
     }
 
-    if (*ballX >= MAXX)
-    {
+    if (*ballX >= MAXX) {
         (*leftScore)++;
-        if (*leftScore >= WINNING_SCORE)
-        {
+        if (*leftScore >= WINNING_SCORE) {
             *gameEnded = 1;
         }
         *ballX = 40;
@@ -161,7 +158,8 @@ int main()
     gameEnded = malloc(sizeof(int));
 
     resetGame();
-    screenInit(1);
+    screenInit(0);
+    screenDrawBorders();
     keyboardInit();
     timerInit(1);
 
@@ -175,7 +173,7 @@ int main()
             updatePaddles();
             drawGame();
         }
-        usleep(50000);
+        usleep(1);
     }
 
     free(leftPaddleY);

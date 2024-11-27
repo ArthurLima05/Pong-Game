@@ -9,7 +9,6 @@
 static struct termios old_tio, new_tio;
 static int keyState[NUM_KEYS] = {0};
 
-// Inicializa o teclado
 void keyboardInit()
 {
     tcgetattr(STDIN_FILENO, &old_tio);
