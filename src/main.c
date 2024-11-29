@@ -6,7 +6,7 @@
 #include <unistd.h>
 
 #define PADDLE_WIDTH 1
-#define PADDLE_HEIGHT 4
+#define PADDLE_HEIGHT 5
 #define BALL_SIZE 1
 #define WINNING_SCORE 7
 
@@ -21,7 +21,7 @@ void drawGame()
     screenDrawBorders();
 
     screenSetColor(BLUE, BLACK);
-    int leftPaddleHeight = (*leftScore >= 4) ? 2 : PADDLE_HEIGHT; // Reduz o tamanho do paddle para 2 se a pontuação for >= 4
+    int leftPaddleHeight = (*leftScore >= 4) ? 3 : PADDLE_HEIGHT; // Reduz o tamanho do paddle para 2 se a pontuação for >= 4
     for (int i = 0; i < leftPaddleHeight; i++)
     {
         screenGotoxy(2, *leftPaddleY + i);
@@ -29,7 +29,7 @@ void drawGame()
     }
 
     screenSetColor(RED, BLACK);
-    int rightPaddleHeight = (*rightScore >= 4) ? 2 : PADDLE_HEIGHT; // Reduz o tamanho do paddle para 2 se a pontuação for >= 4
+    int rightPaddleHeight = (*rightScore >= 4) ? 3 : PADDLE_HEIGHT; // Reduz o tamanho do paddle para 2 se a pontuação for >= 4
     for (int i = 0; i < rightPaddleHeight; i++)
     {
         screenGotoxy(MAXX - 2, *rightPaddleY + i);
