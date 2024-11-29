@@ -21,7 +21,7 @@ void timerUpdate()
     unsigned long elapsedTime = (currentTime.tv_sec - startTime.tv_sec) * 1000 +
                                 (currentTime.tv_usec - startTime.tv_usec) / 1000;
 
-        if (elapsedTime - lastUpdateTime >= intervalTime)
+    if (elapsedTime - lastUpdateTime >= intervalTime)
     {
         lastUpdateTime = elapsedTime;
     }
