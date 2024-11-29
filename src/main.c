@@ -26,13 +26,6 @@ void drawGame()
     {
         screenGotoxy(2, *leftPaddleY + i);
         printf("|");
-    }
-
-    screenSetColor(RED, BLACK);
-    int rightPaddleHeight = (*rightScore >= 4) ? 2 : PADDLE_HEIGHT;
-    for (int i = 0; i < rightPaddleHeight; i++)
-    {
-        screenGotoxy(MAXX - 2, *rightPaddleY + i);
         printf("|");
     }
 
